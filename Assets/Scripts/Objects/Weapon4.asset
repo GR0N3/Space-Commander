@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0facb0810a217ec4884eda9b23458c01, type: 3}
+  m_Name: Weapon4
+  m_EditorClassIdentifier: 
+  powerUpName: Canons n Turrests 2
+  description: 
+  extraCannons: 3
+  enableSideCannons: 1
+  enableTurrets: 1
+  enableOrbitingDrones: 1
+  fireRateMultiplier: 3
+  shieldActive: 0
+  shieldResistance: 100
+  shieldLevel: 1
+  orbitRadius: 5
+  orbitSpeed: 60
+  healAmount: 0
+  icon: {fileID: 0}
+  pickupSound: {fileID: 8300000, guid: 7fbcad985c7519b4c97ae1ec20cfd14f, type: 3}
+  pickupVolume: 1

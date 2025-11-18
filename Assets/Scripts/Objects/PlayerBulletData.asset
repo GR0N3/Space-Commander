@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9623377d0d03a2343a64f31f1c713b8a, type: 3}
+  m_Name: PlayerBulletData
+  m_EditorClassIdentifier: 
+  speed: 50
+  lifeTime: 5
+  damage: 50
+  sprite: {fileID: 0}
+  shootSound: {fileID: 8300000, guid: cc944798b61daec4b831b4bb13e56ef9, type: 3}
+  hitSound: {fileID: 8300000, guid: 1b652c59db274894c8ddb36047a3fd02, type: 3}
+  shootVolume: 0.2
+  hitVolume: 5
+  ownerTag: Player

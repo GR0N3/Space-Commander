@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa0d2e10c6ae98b4e9c401ca246e2642, type: 3}
+  m_Name: EnemyLife
+  m_EditorClassIdentifier: 
+  entityName: EnemyLifeType
+  description: 
+  maxHealth: 100
+  hasShield: 0
+  shieldHealth: 0
+  deathEffectPrefab: {fileID: 0}
+  deathSound: {fileID: 8300000, guid: ea5ad44e4404dff4ba96b07dce828417, type: 3}
+  deathSoundVolume: 5
+  pointsOnDeath: 0
+  icon: {fileID: 0}
+  entityColor: {r: 1, g: 1, b: 1, a: 1}
