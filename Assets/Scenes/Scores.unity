@@ -1095,7 +1095,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Quit To Menu
+  m_text: Press ESC to Quit To Menu
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ee3887b282e0a2a47a779e51e590be7e, type: 2}
   m_sharedMaterial: {fileID: 1765173082644976098, guid: ee3887b282e0a2a47a779e51e590be7e, type: 2}
@@ -1276,7 +1276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menuSceneName: Menu
-  resetCurrentScoreOnQuit: 1
+  resetCurrentScoreOnQuit: 0
 --- !u!4 &1666091502
 Transform:
   m_ObjectHideFlags: 0
@@ -1350,7 +1350,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: ___
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ee3887b282e0a2a47a779e51e590be7e, type: 2}
   m_sharedMaterial: {fileID: 1765173082644976098, guid: ee3887b282e0a2a47a779e51e590be7e, type: 2}
@@ -1377,7 +1377,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
+  m_fontSize: 44.15
   m_fontSizeBase: 25
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1442,8 +1442,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   initialsText: {fileID: 1873618098}
+  inputField: {fileID: 0}
   maxChars: 3
   placeholder: ___
+  clearOnSubmit: 0
+  syncPreviewWithInputArea: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

@@ -92,12 +92,7 @@ public class GameFlowFacade : MonoBehaviour
             yield break;
         }
 
-        string next = null;
-        if (!string.IsNullOrEmpty(current))
-        {
-            if (current.Contains("Nivel(1)")) next = "Nivel(2)";
-            else if (current.Contains("Nivel(2)")) next = "Scores";
-        }
+        string next = "Scores";
         if (!string.IsNullOrEmpty(next))
         {
             SceneTransition.LoadScene(next);

@@ -20,7 +20,8 @@ public class PauseMenu : MonoBehaviour
     {
         if (isPaused)
         {
-            if (Input.anyKeyDown) Resume();
+            if (Input.GetKeyDown(KeyCode.Escape)) QuitToMenu();
+            else if (Input.anyKeyDown) Resume();
         }
         else if (Input.GetKeyDown(toggleKey))
         {

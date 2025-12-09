@@ -8,11 +8,13 @@ TagManager:
   - Bullet
   - PowerUp
   - Object Pool
+  - Boss
+  - Sword
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - 

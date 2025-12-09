@@ -20,6 +20,12 @@ public class PowerUpSpawner : MonoBehaviour
     [Tooltip("Altura relativa al player donde aparecerá el powerup")] 
     public float upOffset = 1f;
 
+    [Header("Score-Triggered Spawns")]
+    [Tooltip("Activa spawns automáticos basados en la puntuación")] public bool scoreTriggeredSpawns = true;
+    [Tooltip("Puntos necesarios por spawn")] public int pointsPerSpawn = 500;
+    [Tooltip("Probabilidad de spawn por umbral")] [Range(0f,1f)] public float spawnChance = 0.5f;
+    private int nextScoreThreshold;
+
     void Start()
     {
         if (playerTransform == null)
@@ -27,6 +33,7 @@ public class PowerUpSpawner : MonoBehaviour
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p != null) playerTransform = p.transform;
         }
+        nextScoreThreshold = Mathf.Max(1, pointsPerSpawn);
     }
 
     void Update()
@@ -34,6 +41,22 @@ public class PowerUpSpawner : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             SpawnRandomPowerUp();
+        }
+        if (scoreTriggeredSpawns)
+        {
+            var sm = ScoreManager.Instance;
+            if (sm != null)
+            {
+                int s = sm.Score;
+                while (s >= nextScoreThreshold)
+                {
+                    if (Random.value < spawnChance)
+                    {
+                        SpawnRandomPowerUp();
+                    }
+                    nextScoreThreshold += Mathf.Max(1, pointsPerSpawn);
+                }
+            }
         }
     }
 

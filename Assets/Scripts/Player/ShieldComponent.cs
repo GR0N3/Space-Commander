@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Componente que gestiona el escudo visual del jugador con sistema de resistencia.
-/// Se integra con EntityLife para manejar la resistencia del escudo.
-/// </summary>
 public class ShieldComponent : MonoBehaviour
 {
     [Header("Shield Visual")]
@@ -19,24 +15,14 @@ public class ShieldComponent : MonoBehaviour
 
     private EntityLife entityLife;
 
-    /// <summary>
-    /// Obtiene la resistencia actual del escudo
-    /// </summary>
     public int CurrentResistance => currentResistance;
 
-    /// <summary>
-    /// Obtiene la resistencia máxima del escudo
-    /// </summary>
     public int MaxResistance => maxResistance;
 
-    /// <summary>
-    /// Obtiene si el escudo está activo
-    /// </summary>
     public bool IsActive => shieldVisual != null && shieldVisual.activeSelf && currentResistance > 0;
 
     void Awake()
     {
-        // Buscar EntityLife en el mismo GameObject o en el padre
         entityLife = GetComponent<EntityLife>();
         if (entityLife == null)
         {
@@ -44,9 +30,6 @@ public class ShieldComponent : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Activa el escudo con la resistencia especificada (desde power-up)
-    /// </summary>
     public void ActivateShield(int resistance)
     {
         maxResistance = resistance;
@@ -57,36 +40,22 @@ public class ShieldComponent : MonoBehaviour
             shieldVisual.SetActive(true);
         }
 
-        // NO activamos el escudo en EntityLife aquí porque el escudo de power-up
-        // funciona independientemente. EntityLife manejará el daño cuando se reciba.
-
-        // Enviar mensaje para actualizar UI
         gameObject.SendMessage("OnShieldActivated", new ShieldResistanceData(currentResistance, maxResistance), SendMessageOptions.DontRequireReceiver);
     }
 
-    /// <summary>
-    /// Aplica daño al escudo (reduce resistencia)
-    /// </summary>
     public void TakeShieldDamage(int damage)
     {
         if (!IsActive) return;
 
         currentResistance -= damage;
         currentResistance = Mathf.Max(0, currentResistance);
-
-        // Enviar mensaje para actualizar UI
         gameObject.SendMessage("OnShieldDamaged", new ShieldResistanceData(currentResistance, maxResistance), SendMessageOptions.DontRequireReceiver);
-
-        // Si el escudo se rompió
         if (currentResistance <= 0)
         {
             DeactivateShield();
         }
     }
 
-    /// <summary>
-    /// Desactiva el escudo
-    /// </summary>
     public void DeactivateShield()
     {
         currentResistance = 0;
@@ -96,13 +65,9 @@ public class ShieldComponent : MonoBehaviour
             shieldVisual.SetActive(false);
         }
 
-        // Enviar mensaje para actualizar UI
         gameObject.SendMessage("OnShieldDeactivated", SendMessageOptions.DontRequireReceiver);
     }
 
-    /// <summary>
-    /// Restaura el escudo a su resistencia máxima
-    /// </summary>
     public void RestoreShield()
     {
         currentResistance = maxResistance;
@@ -113,9 +78,6 @@ public class ShieldComponent : MonoBehaviour
     }
 }
 
-/// <summary>
-/// Estructura de datos para notificar cambios de resistencia del escudo a la UI
-/// </summary>
 public struct ShieldResistanceData
 {
     public int currentResistance;

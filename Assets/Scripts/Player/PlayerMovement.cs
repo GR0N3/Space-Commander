@@ -27,8 +27,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        float verticalInput = Input.GetAxis("Vertical"); // W/S
-        // Movimiento en la dirección forward del transform (ya está en el plano horizontal)
+        float verticalInput = Input.GetAxis("Vertical");
         Vector3 moveDirection = transform.forward * verticalInput;
         transform.position += moveDirection * moveSpeed * Time.deltaTime;
         if (clampToArea && clampArea != null)
@@ -64,25 +63,21 @@ public class PlayerMovement : MonoBehaviour
     {
         if (rotateTowardMouse)
         {
-            // Raycast desde la cámara hacia el plano donde está la nave
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
-            Plane plane = new Plane(Vector3.up, transform.position); // Plano horizontal en la posición de la nave
+            Plane plane = new Plane(Vector3.up, transform.position);
             
             if (plane.Raycast(ray, out float distance))
             {
                 Vector3 mouseWorldPos = ray.GetPoint(distance);
                 
-                // Calcular dirección hacia el mouse en el plano horizontal
                 Vector3 direction = (mouseWorldPos - transform.position);
-                direction.y = 0; // Mantener en el plano horizontal
+                direction.y = 0;
                 direction.Normalize();
                 
                 if (direction != Vector3.zero)
                 {
-                    // Calcular el ángulo en el plano horizontal (XZ)
                     float angle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
                     
-                    // Rotar solo en Y (eje vertical) para mantener la nave en el plano horizontal
                     Quaternion targetRotation = Quaternion.Euler(0f, angle, 0f);
                     transform.rotation = Quaternion.RotateTowards(
                         transform.rotation, 
@@ -94,8 +89,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            float horizontalInput = Input.GetAxis("Horizontal"); // A/D
-            // Rotar en el eje Y (horizontal)
+            float horizontalInput = Input.GetAxis("Horizontal");
             transform.Rotate(Vector3.up, horizontalInput * rotationSpeed * Time.deltaTime);
         }
     }

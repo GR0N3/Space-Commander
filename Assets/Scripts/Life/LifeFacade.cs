@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LifeFacade : MonoBehaviour
 {
@@ -103,6 +104,13 @@ public class LifeFacade : MonoBehaviour
             }
             else
             {
+                var boss = entityGameObject.GetComponent<Boss>();
+                if (boss == null) boss = entityGameObject.GetComponentInParent<Boss>();
+                if (boss != null)
+                {
+                    var flow = Object.FindFirstObjectByType<GameFlowFacade>();
+                    if (flow != null) flow.EndLevel();
+                }
                 Destroy(entityGameObject);
             }
         }
@@ -180,7 +188,28 @@ public class LifeFacade : MonoBehaviour
 
     private System.Collections.IEnumerator WaitAnyKeyThenMenu()
     {
-        while (!Input.anyKeyDown) { yield return null; }
+        while (true)
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                AudioListener.pause = false;
+                Time.timeScale = 1f;
+                SceneTransition.LoadScene(menuSceneName);
+                yield break;
+            }
+            if (Input.anyKeyDown)
+            {
+                break;
+            }
+            yield return null;
+        }
+        AudioListener.pause = false;
+        Time.timeScale = 1f;
+        SceneTransition.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void QuitToMenu()
+    {
         AudioListener.pause = false;
         Time.timeScale = 1f;
         SceneTransition.LoadScene(menuSceneName);

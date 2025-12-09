@@ -30,6 +30,7 @@ public class HighScoreManager : MonoBehaviour
     [SerializeField] private int capacity = 10;
     [SerializeField] private List<Entry> entries = new List<Entry>();
     private const string PrefKey = "HighScores_v1";
+    private const string PrefLastKey = "HighScores_LastInitials";
 
     void Awake()
     {
@@ -57,6 +58,7 @@ public class HighScoreManager : MonoBehaviour
         entries.Add(new Entry { initials = initials, score = score });
         entries.Sort((a, b) => b.score.CompareTo(a.score));
         if (entries.Count > capacity) entries.RemoveRange(capacity, entries.Count - capacity);
+        SetLastInitials(initials.Trim());
         Save();
     }
 
@@ -85,6 +87,20 @@ public class HighScoreManager : MonoBehaviour
         var wrapper = new Wrapper { items = entries.ToArray() };
         var json = JsonUtility.ToJson(wrapper);
         PlayerPrefs.SetString(PrefKey, json);
+        PlayerPrefs.Save();
+    }
+
+    public string GetLastInitials()
+    {
+        return PlayerPrefs.GetString(PrefLastKey, "");
+    }
+
+    public void SetLastInitials(string initials)
+    {
+        if (string.IsNullOrEmpty(initials)) initials = "";
+        initials = initials.ToUpperInvariant();
+        if (initials.Length > 3) initials = initials.Substring(0, 3);
+        PlayerPrefs.SetString(PrefLastKey, initials);
         PlayerPrefs.Save();
     }
 

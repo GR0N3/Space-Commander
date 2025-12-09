@@ -6,7 +6,7 @@ public class OrbitingDronesStrategy : IShootStrategy
     private Transform[] drones;
     private float orbitRadius = 5f;
     private int droneCount = 2;
-    private float orbitSpeed = 60f; // grados por segundo
+    private float orbitSpeed = 60f;
 
     public OrbitingDronesStrategy(Transform player, ObjectPool dronePool)
     {

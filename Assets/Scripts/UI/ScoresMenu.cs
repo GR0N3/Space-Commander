@@ -10,10 +10,6 @@ public class ScoresMenu : MonoBehaviour
         Time.timeScale = 1f;
         var initials = Object.FindFirstObjectByType<InitialsInput>();
         if (initials != null) initials.SubmitIfHasInitials();
-        if (resetCurrentScoreOnQuit && ScoreManager.Instance != null)
-        {
-            ScoreManager.Instance.ResetScore();
-        }
         SceneTransition.LoadScene(menuSceneName);
     }
 

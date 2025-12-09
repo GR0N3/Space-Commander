@@ -7,7 +7,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [Header("Flyweight Data")]
-    [SerializeField] private BulletData bulletData; // Estado intrínseco compartido
+    [SerializeField] private BulletData bulletData;
 
     [Header("Extrinsic State")]
     [Tooltip("Tag del jugador para detectar colisiones (fallback)")]
@@ -16,10 +16,9 @@ public class Bullet : MonoBehaviour
     private Coroutine lifetimeCoroutine;
     private Collider col;
     private Rigidbody rb;
+    [SerializeField] private LayerMask hitMask = ~0;
+    private Vector3 lastPos;
     
-    /// <summary>
-    /// Inicializa la bala con los datos del ScriptableObject
-    /// </summary>
     public void Initialize(BulletData data)
     {
         if (data == null) return;
@@ -41,6 +40,7 @@ public class Bullet : MonoBehaviour
             rb.useGravity = false;
             rb.isKinematic = true;
         }
+        lastPos = transform.position;
     }
 
     private void OnEnable()
@@ -65,7 +65,18 @@ public class Bullet : MonoBehaviour
     {
         if (bulletData != null)
         {
-            transform.Translate(Vector3.forward * bulletData.speed * Time.deltaTime);
+            float dist = bulletData.speed * Time.deltaTime;
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, transform.forward, out hit, dist, hitMask))
+            {
+                if (IsValidTarget(hit.collider))
+                {
+                    ApplyDamageTo(hit.collider);
+                    return;
+                }
+            }
+            transform.Translate(Vector3.forward * dist);
+            lastPos = transform.position;
         }
     }
 
@@ -102,119 +113,89 @@ public class Bullet : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (bulletData != null)
-        {
-            
-            string targetTag = GetExpectedTargetTag();
-            // Si la bala es de enemigo y choca con el jugador
-            if (bulletData.ownerTag == "Enemy" && other.CompareTag(targetTag))
-            {
-                // Usar EntityLife si está disponible, sino usar PlayerHealth para compatibilidad
-                EntityLife entityLife = other.GetComponent<EntityLife>();
-                if (entityLife != null)
-                {
-                    entityLife.TakeDamage(bulletData.damage);
-                }
-                else
-                {
-                    PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
-                    if (playerHealth != null)
-                    {
-                        playerHealth.TakeDamage(bulletData.damage);
-                    }
-                }
-                if (bulletData.hitSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(bulletData.hitSound, transform.position, bulletData.hitVolume);
-                }
-                Deactivate();
-            }
-            // Si la bala es del jugador y choca con un enemigo
-            else if (bulletData.ownerTag == "Player" && other.CompareTag(targetTag))
-            {
-                // Usar EntityLife si está disponible
-                EntityLife entityLife = other.GetComponent<EntityLife>();
-                if (entityLife != null)
-                {
-                    entityLife.TakeDamage(bulletData.damage);
-                }
-                else
-                {
-                    // Fallback: usar EnemyLife si existe
-                    EnemyLife enemyLife = other.GetComponent<EnemyLife>();
-                    if (enemyLife != null)
-                    {
-                        enemyLife.TakeDamage(bulletData.damage);
-                    }
-                    else
-                    {
-                        Destroy(other.gameObject);
-                    }
-                }
-                if (bulletData.hitSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(bulletData.hitSound, transform.position, bulletData.hitVolume);
-                }
-                Deactivate();
-            }
-        }
-        else { }
+        if (bulletData == null) return;
+        if (!IsValidTarget(other)) return;
+        ApplyDamageTo(other);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
         var other = collision.collider;
-        if (bulletData != null)
+        if (bulletData == null) return;
+        if (!IsValidTarget(other)) return;
+        ApplyDamageTo(other);
+    }
+
+    private bool IsValidTarget(Collider other)
+    {
+        if (bulletData.ownerTag == "Enemy")
         {
-            string targetTag = GetExpectedTargetTag();
-            if (bulletData.ownerTag == "Enemy" && other.CompareTag(targetTag))
+            return HasTag(other, "Player");
+        }
+        if (bulletData.ownerTag == "Player")
+        {
+            if (HasTag(other, "Enemy")) return true;
+            if (HasTag(other, "Boss")) return true;
+            return false;
+        }
+        string targetTag = GetExpectedTargetTag();
+        return HasTag(other, targetTag);
+    }
+
+    private bool HasTag(Collider other, string tag)
+    {
+        if (other == null) return false;
+        if (other.CompareTag(tag)) return true;
+        Transform t = other.transform;
+        if (t != null)
+        {
+            if (t.parent != null && t.parent.CompareTag(tag)) return true;
+            if (t.root != null && t.root.CompareTag(tag)) return true;
+        }
+        return false;
+    }
+
+    private void ApplyDamageTo(Collider other)
+    {
+        EntityLife entityLife = other.GetComponent<EntityLife>();
+        if (entityLife == null)
+        {
+            entityLife = other.GetComponentInParent<EntityLife>();
+        }
+        if (entityLife != null)
+        {
+            entityLife.TakeDamage(bulletData.damage);
+            var bossHit = other.GetComponent<Boss>() != null || other.GetComponentInParent<Boss>() != null;
+            if (bossHit && bulletData != null && bulletData.ownerTag == "Player")
             {
-                var entityLife = other.GetComponent<EntityLife>();
-                if (entityLife != null)
-                {
-                    entityLife.TakeDamage(bulletData.damage);
-                }
-                else
-                {
-                    var playerHealth = other.GetComponent<PlayerHealth>();
-                    if (playerHealth != null)
-                    {
-                        playerHealth.TakeDamage(bulletData.damage);
-                    }
-                }
-                if (bulletData.hitSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(bulletData.hitSound, transform.position, bulletData.hitVolume);
-                }
-                Deactivate();
-            }
-            else if (bulletData.ownerTag == "Player" && other.CompareTag(targetTag))
-            {
-                var entityLife = other.GetComponent<EntityLife>();
-                if (entityLife != null)
-                {
-                    entityLife.TakeDamage(bulletData.damage);
-                }
-                else
-                {
-                    var enemyLife = other.GetComponent<EnemyLife>();
-                    if (enemyLife != null)
-                    {
-                        enemyLife.TakeDamage(bulletData.damage);
-                    }
-                    else
-                    {
-                        Destroy(other.gameObject);
-                    }
-                }
-                if (bulletData.hitSound != null)
-                {
-                    AudioSource.PlayClipAtPoint(bulletData.hitSound, transform.position, bulletData.hitVolume);
-                }
-                Deactivate();
+                var service = ScoreManager.Instance as IScoreService;
+                if (service != null) service.AddScore(250); else ScoreManager.Instance.AddScore(250);
             }
         }
-        else { }
+        else
+        {
+            if (bulletData.ownerTag == "Enemy")
+            {
+                var playerHealth = other.GetComponent<PlayerHealth>();
+                if (playerHealth != null) playerHealth.TakeDamage(bulletData.damage);
+            }
+            else if (bulletData.ownerTag == "Player")
+            {
+                var enemyLife = other.GetComponent<EnemyLife>();
+                if (enemyLife != null) enemyLife.TakeDamage(bulletData.damage);
+                var bossHit = other.GetComponent<Boss>() != null || other.GetComponentInParent<Boss>() != null;
+                if (bossHit)
+                {
+                    var service = ScoreManager.Instance as IScoreService;
+                    if (service != null) service.AddScore(250); else ScoreManager.Instance.AddScore(250);
+                }
+            }
+        }
+        if (bulletData.hitSound != null)
+        {
+            AudioSource.PlayClipAtPoint(bulletData.hitSound, transform.position, bulletData.hitVolume);
+        }
+        Deactivate();
     }
 
     public string OwnerTag

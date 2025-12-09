@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// ScriptableObject que define un tipo de vida usando el patrón Type Object.
-/// Cada variación de entidad (jugador, enemigo, etc.) se define como datos, no como nuevas clases.
-/// Esto permite agregar nuevos tipos de entidades simplemente creando un nuevo ScriptableObject en el editor.
-/// </summary>
 [CreateAssetMenu(fileName = "NewLifeType", menuName = "Type Object/LifeType", order = 2)]
 public class LifeType : ScriptableObject
 {
@@ -18,7 +13,7 @@ public class LifeType : ScriptableObject
 
     [Header("Vida")]
     [Tooltip("Vida máxima de la entidad")]
-    [Range(1, 1000)]
+    [Range(1, 100000)]
     public int maxHealth = 100;
 
     [Header("Escudo")]
@@ -48,21 +43,13 @@ public class LifeType : ScriptableObject
     [Tooltip("Color de la entidad (para UI o efectos)")]
     public Color entityColor = Color.white;
 
-    /// <summary>
-    /// Valida que la configuración del LifeType sea coherente
-    /// </summary>
     private void OnValidate()
     {
-        // Asegurar que maxHealth sea positivo
         maxHealth = Mathf.Max(1, maxHealth);
-        
-        // Si no tiene escudo, resetear valores relacionados
         if (!hasShield)
         {
             shieldHealth = 0;
         }
-        
-        // Asegurar que shieldHealth sea positivo si tiene escudo
         if (hasShield)
         {
             shieldHealth = Mathf.Max(1, shieldHealth);
