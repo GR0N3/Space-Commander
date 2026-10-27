@@ -8,8 +8,17 @@ public class ScoresMenu : MonoBehaviour
     public void QuitToMenu()
     {
         Time.timeScale = 1f;
-        var initials = Object.FindFirstObjectByType<InitialsInput>();
-        if (initials != null) initials.SubmitIfHasInitials();
+        var initials = UnityEngine.Object.FindFirstObjectByType<InitialsInput>();
+        if (initials != null)
+        {
+            initials.SubmitIfHasInitials();
+        }
+
+        if (resetCurrentScoreOnQuit && ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.ResetScore();
+        }
+
         SceneTransition.LoadScene(menuSceneName);
     }
 

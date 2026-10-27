@@ -63,6 +63,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,9 +86,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!136 &2647497223069327299
 CapsuleCollider:
@@ -128,6 +132,7 @@ GameObject:
   - component: {fileID: 809563317788004151}
   - component: {fileID: 6079485163286049591}
   - component: {fileID: 5125727839251780667}
+  - component: {fileID: 2152857111027707047}
   m_Layer: 0
   m_Name: Enemy01
   m_TagString: Enemy
@@ -180,10 +185,15 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 9ab6907cdaa40004c83491ec516d51b9, type: 2}
+  - {fileID: 2100000, guid: ec252025e29964f4c81a211fac2e3dd4, type: 2}
+  - {fileID: 2100000, guid: a4c45285eb23b4b47b08763d2d308e48, type: 2}
+  - {fileID: 2100000, guid: d073662f785676c43bc8b74d215f279e, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -201,9 +211,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!136 &7724521916292258196
 CapsuleCollider:
@@ -342,6 +354,19 @@ MonoBehaviour:
   spawnerBehaviour: {fileID: 0}
   powerUpSpawner: {fileID: 0}
   powerUpDropChance: 0.8
+--- !u!114 &2152857111027707047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7735016147162029096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addef08ed0cb41347b0748c7ad979a43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CullableObject
+  fallbackRadius: 2.5
 --- !u!1 &8074360798065432187
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,6 +454,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: c1a03093b3db2ae45821c89ec73158f6, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9ab6907cdaa40004c83491ec516d51b9, type: 2}
+    - target: {fileID: -7511558181221131132, guid: c1a03093b3db2ae45821c89ec73158f6, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: ec252025e29964f4c81a211fac2e3dd4, type: 2}
+    - target: {fileID: -7511558181221131132, guid: c1a03093b3db2ae45821c89ec73158f6, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: a4c45285eb23b4b47b08763d2d308e48, type: 2}
+    - target: {fileID: -7511558181221131132, guid: c1a03093b3db2ae45821c89ec73158f6, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2100000, guid: d073662f785676c43bc8b74d215f279e, type: 2}
     - target: {fileID: 919132149155446097, guid: c1a03093b3db2ae45821c89ec73158f6, type: 3}
       propertyPath: m_Name
       value: NaveEnemigaAlien2

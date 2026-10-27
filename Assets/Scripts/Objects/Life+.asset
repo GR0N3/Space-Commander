@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   powerUpName: +50 Life
   description: +50 to player
+  weaponUpgradeMode: 0
   extraCannons: 0
   enableSideCannons: 0
   enableTurrets: 0
@@ -25,5 +26,7 @@ MonoBehaviour:
   orbitRadius: 0
   orbitSpeed: 0
   healAmount: 50
+  powerUpMaterial: {fileID: 2100000, guid: 26555b698759f5940886d17d572cb982, type: 2}
   icon: {fileID: 0}
   pickupSound: {fileID: 0}
+  pickupVolume: 1

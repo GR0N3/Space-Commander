@@ -24,12 +24,68 @@ public class BulletShoot : MonoBehaviour, IWeapon
 
     void Start()
     {
+        EnsureReferences();
+    }
+
+    public void SyncPoolFrom(BulletShoot source, PlayerPowerUpManager mgr)
+    {
+        if (mgr != null && powerUpManager == null)
+        {
+            powerUpManager = mgr;
+        }
+        if (source != null && source != this)
+        {
+            if (bulletPool == null && source.bulletPool != null) bulletPool = source.bulletPool;
+            if (objectPool == null && source.objectPool != null) objectPool = source.objectPool;
+            if (bulletData == null && source.bulletData != null) bulletData = source.bulletData;
+        }
+        EnsureReferences();
+    }
+
+    private void EnsureReferences()
+    {
         if (powerUpManager == null)
         {
             powerUpManager = GetComponent<PlayerPowerUpManager>();
             if (powerUpManager == null)
             {
                 powerUpManager = GetComponentInParent<PlayerPowerUpManager>();
+            }
+            if (powerUpManager == null)
+            {
+                var p = GameObject.FindGameObjectWithTag("Player");
+                if (p != null) powerUpManager = p.GetComponent<PlayerPowerUpManager>();
+            }
+        }
+
+        if (firePoint == null)
+        {
+            var canon = transform.Find("Canon");
+            if (canon != null) firePoint = canon;
+            else firePoint = transform;
+        }
+
+        if (objectPool == null && bulletPool == null)
+        {
+            // Intentar heredar el pool del cañón principal del jugador o buscar en la escena
+            if (powerUpManager != null)
+            {
+                var allShoots = powerUpManager.GetComponentsInChildren<BulletShoot>(true);
+                foreach (var s in allShoots)
+                {
+                    if (s != this && (s.bulletPool != null || s.objectPool != null))
+                    {
+                        this.bulletPool = s.bulletPool;
+                        this.objectPool = s.objectPool;
+                        break;
+                    }
+                }
+            }
+            if (objectPool == null && bulletPool == null)
+            {
+                var bpObj = GameObject.Find("PlayerBulletPool");
+                if (bpObj != null) bulletPool = bpObj.GetComponent<BulletPool>();
+                if (bulletPool == null) bulletPool = FindFirstObjectByType<BulletPool>();
             }
         }
     }
@@ -53,8 +109,17 @@ public class BulletShoot : MonoBehaviour, IWeapon
         }
     }
 
+    void OnEnable()
+    {
+        EnsureReferences();
+    }
+
     public void Shoot()
     {
+        if (objectPool == null && bulletPool == null)
+        {
+            EnsureReferences();
+        }
         if (bulletData == null)
         {
             return;

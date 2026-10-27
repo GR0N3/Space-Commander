@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2426815908653289210}
   - component: {fileID: 4021913036409907661}
   - component: {fileID: 3718321913373836931}
+  - component: {fileID: 5071731462712172417}
   m_Layer: 0
   m_Name: PowerUP
   m_TagString: PowerUp
@@ -63,6 +64,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -84,9 +87,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!135 &4021913036409907661
 SphereCollider:
@@ -124,7 +129,27 @@ MonoBehaviour:
   powerUpType: {fileID: 0}
   useRandomFromList: 1
   possiblePowerUpTypes:
-  - {fileID: 11400000, guid: eb99627cffd6c5540bdf2c466786e10e, type: 2}
-  - {fileID: 11400000, guid: b6891cc556aea3248bb6da54c2b58c2b, type: 2}
-  - {fileID: 11400000, guid: 4c6e145a63077244abfc81da7d75a199, type: 2}
+  - {fileID: 11400000, guid: ac31698624033294895466c64173c21e, type: 2}
+  - {fileID: 11400000, guid: 541631816a9861e43b0eeff0a37079a5, type: 2}
+  - {fileID: 11400000, guid: ba2df92b7d03b3a43a7f91cde86c2fa7, type: 2}
+  - {fileID: 11400000, guid: 559f3c6dc55d0e14291c3c8e952b19d0, type: 2}
+  - {fileID: 11400000, guid: 1ed7fa4f09d62724ba7a9a3233f7acda, type: 2}
   - {fileID: 11400000, guid: e1e98a8024b481d409ba374cb68fced6, type: 2}
+  - {fileID: 11400000, guid: 94dc72fc9fa2f2c408de753906ec8b48, type: 2}
+  - {fileID: 11400000, guid: a3f2ddd4f31b06b4c90ff9d82561ca5b, type: 2}
+  shieldMaterial: {fileID: 2100000, guid: 8c2a9030e45a9de4c8dca044006bceab, type: 2}
+  lifeMaterial: {fileID: 2100000, guid: 26555b698759f5940886d17d572cb982, type: 2}
+  defaultWeaponMaterial: {fileID: 2100000, guid: 74cbbd139bc7c5e4cb4dd16db53e6a2b, type: 2}
+--- !u!114 &5071731462712172417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7937261149154524333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addef08ed0cb41347b0748c7ad979a43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CullableObject
+  fallbackRadius: 2.5

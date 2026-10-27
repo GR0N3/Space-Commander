@@ -62,6 +62,8 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -83,9 +85,11 @@ MeshRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!135 &9112298408805771763
 SphereCollider:
@@ -118,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 888406461156996412}
   - component: {fileID: 5470725551779891212}
+  - component: {fileID: 4432147543500839161}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Boss
@@ -162,6 +167,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 13.803164, y: 29.277847, z: 9.13}
   m_Center: {x: 0.092568636, y: 16.74997, z: 0}
+--- !u!114 &4432147543500839161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1432704035157947888}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: addef08ed0cb41347b0748c7ad979a43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CullableObject
+  fallbackRadius: 2.5
 --- !u!1 &4959731281894983071
 GameObject:
   m_ObjectHideFlags: 0
@@ -556,6 +574,30 @@ PrefabInstance:
       propertyPath: m_UpdateWhenOffscreen
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7706110884207132511, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: e0c5cac949fdecb4fb81fb41f67cc228, type: 2}
+    - target: {fileID: 7706110884207132511, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
+      propertyPath: 'm_Materials.Array.data[1]'
+      value: 
+      objectReference: {fileID: 2100000, guid: f58ea2e19747fa74c867bb4386251ebd, type: 2}
+    - target: {fileID: 7706110884207132511, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
+      propertyPath: 'm_Materials.Array.data[2]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 1f06c17ae0be56c4aa6e968bd2d7cb0a, type: 2}
+    - target: {fileID: 7706110884207132511, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
+      propertyPath: 'm_Materials.Array.data[3]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 79d37bfc50a90714a962239cf67bd727, type: 2}
+    - target: {fileID: 7706110884207132511, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
+      propertyPath: 'm_Materials.Array.data[4]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 788b9e69593044348aad3295f2467963, type: 2}
+    - target: {fileID: 7706110884207132511, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
+      propertyPath: 'm_Materials.Array.data[5]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 9bb22f3ec46d3d44c8a3578bcd911495, type: 2}
     - target: {fileID: 8879528566716807029, guid: 122a0af2a289361479b84f4d5a7e9557, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -89.98021
@@ -680,6 +722,10 @@ MonoBehaviour:
   gunStateName: GunAttackState
   attackStateCheckDelay: 0.05
   crossFadeDuration: 0.1
+  bulletTrackingDelay: 0.16
+  bulletHomingTurnSpeed: 95
+  bulletHomingDuration: 1.4
+  bulletDisengageDistance: 4.5
   animEventMinInterval: 0.1
 --- !u!114 &5732845694050568825
 MonoBehaviour:

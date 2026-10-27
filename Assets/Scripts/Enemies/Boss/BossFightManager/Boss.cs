@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Boss : MonoBehaviour
@@ -39,7 +40,24 @@ public class Boss : MonoBehaviour
     [SerializeField] private float attackStateCheckDelay = 0.05f;
     [SerializeField] private float crossFadeDuration = 0.1f;
 
-    
+    [Header("Disparo Dirigido con Delay (Boss Bullet)")]
+    [Tooltip("Pequeño delay (en segundos) en la puntería y seguimiento hacia el jugador para que sea esquivable pero desafiante")]
+    [SerializeField] private float bulletTrackingDelay = 0.16f;
+    [Tooltip("Velocidad de giro de la bala en vuelo hacia la posición con delay del jugador (grados/seg)")]
+    [SerializeField] private float bulletHomingTurnSpeed = 95f;
+    [Tooltip("Duración máxima del seguimiento en vuelo (segundos)")]
+    [SerializeField] private float bulletHomingDuration = 1.4f;
+    [Tooltip("Distancia al jugador a la que la bala fija su rumbo final para permitir el esquive de último momento")]
+    [SerializeField] private float bulletDisengageDistance = 4.5f;
+
+    private struct PlayerPosSample
+    {
+        public float time;
+        public Vector3 pos;
+    }
+    private readonly Queue<PlayerPosSample> playerPosHistory = new Queue<PlayerPosSample>(32);
+    private Vector3 delayedPlayerPosition;
+
     private Rigidbody rb;
     private float fixedY;
     [SerializeField] private float animEventMinInterval = 0.2f;
@@ -62,6 +80,10 @@ public class Boss : MonoBehaviour
         {
             var playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null) player = playerObj.transform;
+        }
+        if (player != null)
+        {
+            delayedPlayerPosition = player.position;
         }
         if (visualRoot != null)
         {
@@ -89,6 +111,7 @@ public class Boss : MonoBehaviour
 
     void Update()
     {
+        UpdateDelayedPlayerPosition();
         FollowPlayer();
         StateMachine.Update(this);
         if (lockY)
@@ -100,6 +123,17 @@ public class Boss : MonoBehaviour
         {
             var e = transform.rotation.eulerAngles;
             transform.rotation = Quaternion.Euler(0f, e.y, 0f);
+        }
+    }
+
+    private void UpdateDelayedPlayerPosition()
+    {
+        if (player == null) return;
+        float now = Time.time;
+        playerPosHistory.Enqueue(new PlayerPosSample { time = now, pos = player.position });
+        while (playerPosHistory.Count > 1 && (now - playerPosHistory.Peek().time) >= bulletTrackingDelay)
+        {
+            delayedPlayerPosition = playerPosHistory.Dequeue().pos;
         }
     }
 
@@ -125,8 +159,6 @@ public class Boss : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, 10f * Time.deltaTime);
         }
     }
-
-    
 
     public void SwordAttack()
     {
@@ -182,20 +214,51 @@ public class Boss : MonoBehaviour
     {
         if (Time.time - lastGunEventTime < animEventMinInterval) return;
         lastGunEventTime = Time.time;
-        AimCannonAtPlayer();
-        if (bossBulletPool == null || firePoint == null || enemyBulletData == null) return;
-        var obj = bossBulletPool.GetBullet(firePoint.position, firePoint.rotation);
-        var bullet = obj != null ? obj.GetComponent<Bullet>() : null;
-        if (bullet != null) bullet.Initialize(enemyBulletData);
+        FireDirectedBullet();
     }
 
     public void SpawnBulletAtCannon()
     {
+        FireDirectedBullet();
+    }
+
+    private void FireDirectedBullet()
+    {
         AimCannonAtPlayer();
+        if (bossBulletPool == null) bossBulletPool = BossBulletPool.Instance;
         if (bossBulletPool == null || firePoint == null || enemyBulletData == null) return;
-        var obj = bossBulletPool.GetBullet(firePoint.position, firePoint.rotation);
+
+        Vector3 spawnPos = firePoint.position;
+        if (player != null)
+        {
+            // Alinear en el plano Y del jugador para que la bala viaje exactamente a su altura
+            spawnPos.y = player.position.y;
+        }
+
+        Vector3 targetAimPos = player != null ? delayedPlayerPosition : (spawnPos + transform.forward * 10f);
+        targetAimPos.y = spawnPos.y;
+
+        Vector3 dirToPlayer = targetAimPos - spawnPos;
+        dirToPlayer.y = 0f;
+        if (dirToPlayer.sqrMagnitude < 0.001f && player != null)
+        {
+            dirToPlayer = player.position - spawnPos;
+            dirToPlayer.y = 0f;
+        }
+        Quaternion spawnRot = dirToPlayer.sqrMagnitude > 0.001f
+            ? Quaternion.LookRotation(dirToPlayer.normalized, Vector3.up)
+            : transform.rotation;
+
+        var obj = bossBulletPool.GetBullet(spawnPos, spawnRot);
         var bullet = obj != null ? obj.GetComponent<Bullet>() : null;
-        if (bullet != null) bullet.Initialize(enemyBulletData);
+        if (bullet != null)
+        {
+            bullet.Initialize(enemyBulletData);
+            if (player != null)
+            {
+                bullet.SetDelayedHoming(player, bulletTrackingDelay, bulletHomingTurnSpeed, bulletHomingDuration, bulletDisengageDistance);
+            }
+        }
     }
 
     IEnumerator FallbackGunShootIfNoEvent()
@@ -222,7 +285,8 @@ public class Boss : MonoBehaviour
     {
         var pivot = cannonPivot != null ? cannonPivot : firePoint;
         if (pivot == null || player == null) return;
-        var toPlayer = player.position - pivot.position;
+        Vector3 aimTarget = delayedPlayerPosition != Vector3.zero ? delayedPlayerPosition : player.position;
+        var toPlayer = aimTarget - pivot.position;
         var dir = toPlayer.normalized;
         RaycastHit hit;
         if (Physics.Raycast(pivot.position, dir, out hit, maxAimDistance, aimMask))
@@ -315,4 +379,3 @@ public class Boss : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, stopDistance);
     }
 }
-

@@ -53,6 +53,7 @@ public class ShieldComponent : MonoBehaviour
         if (currentResistance <= 0)
         {
             DeactivateShield();
+            SendMessageUpwards("OnShieldBroken", SendMessageOptions.DontRequireReceiver);
         }
     }
 
@@ -89,4 +90,3 @@ public struct ShieldResistanceData
         maxResistance = max;
     }
 }
-

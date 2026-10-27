@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9623377d0d03a2343a64f31f1c713b8a, type: 3}
   m_Name: BossBullet data
   m_EditorClassIdentifier: 
-  speed: 75
+  speed: 36
   lifeTime: 5
   damage: 15
   sprite: {fileID: 0}

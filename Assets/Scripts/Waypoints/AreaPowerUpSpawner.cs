@@ -45,7 +45,7 @@ public class AreaPowerUpSpawner : MonoBehaviour
         if (p == null) p = go.AddComponent<PowerUp>();
         if (availableTypes != null && availableTypes.Length > 0)
         {
-            p.powerUpType = availableTypes[Random.Range(0, availableTypes.Length)];
+            p.SetPowerUpType(PowerUp.SelectAppropriatePowerUpType(availableTypes));
         }
         return go;
     }
@@ -99,6 +99,6 @@ public class AreaPowerUpSpawner : MonoBehaviour
         Vector3 c = area.transform.position;
         float hx = area.size.x * 0.5f;
         float hz = area.size.y * 0.5f;
-        return p.x >= c.x - hx && p.x <= c.x + hx && p.z >= c.z - hz && p.z <= c.z + hz;
+        return (p.x >= c.x - hx && p.x <= c.x + hx && p.z >= c.z - hz && p.z <= c.z + hz);
     }
 }

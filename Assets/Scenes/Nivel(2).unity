@@ -148,9 +148,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53ea5b76a8bd759418ae0287b077728c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cursorTexture: {fileID: 2800000, guid: 80fcf93962240ad478d03467d65ca6e4, type: 3}
-  hotSpot: {x: 0, y: 0}
+  cursorTexture: {fileID: 2800000, guid: 41976e04d819bc5499bc40383e24ac7b, type: 3}
+  hotSpot: {x: 32, y: 32}
   cursorMode: 0
+  followCamera: 1
+  targetCamera: {fileID: 0}
+  cameraOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &54573643
 Transform:
   m_ObjectHideFlags: 0
@@ -420,6 +423,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -572,6 +576,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!1 &348513092
 GameObject:
@@ -748,6 +753,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -881,6 +887,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 1126775767972444363, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
+      propertyPath: bulletPool
+      value: 
+      objectReference: {fileID: 1200808113}
     - target: {fileID: 1386259053306932225, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
       propertyPath: bulletPool
       value: 
@@ -933,11 +943,19 @@ PrefabInstance:
       propertyPath: clampArea
       value: 
       objectReference: {fileID: 2140535617}
+    - target: {fileID: 2988891762047870040, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
+      propertyPath: maxCursorOffset
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 3224794304367811699, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
       propertyPath: bulletPool
       value: 
       objectReference: {fileID: 1200808113}
     - target: {fileID: 4047162832469135948, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
+      propertyPath: bulletPool
+      value: 
+      objectReference: {fileID: 1200808113}
+    - target: {fileID: 6614580178213051159, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
       propertyPath: bulletPool
       value: 
       objectReference: {fileID: 1200808113}
@@ -948,7 +966,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 604593195189217560, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 434426802}
   m_SourcePrefab: {fileID: 100100000, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
 --- !u!4 &434426796 stripped
 Transform:
@@ -988,6 +1009,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9982343286d43204fb11f621474f5c54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &434426800 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 604593195189217560, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
+  m_PrefabInstance: {fileID: 434426795}
+  m_PrefabAsset: {fileID: 0}
+--- !u!20 &434426801 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 2491039765956626907, guid: ef4a577ce3bf29f4aaf5c7378c07f48c, type: 3}
+  m_PrefabInstance: {fileID: 434426795}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &434426802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 434426800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 040c931373e20bc45a176ff322c078a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenCullingManager
+  targetCamera: {fileID: 434426801}
+  cullingMargin: 4
+  autoDiscoveryInterval: 0.5
 --- !u!1 &448264523
 GameObject:
   m_ObjectHideFlags: 0
@@ -1130,6 +1176,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -1388,6 +1435,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!1 &630414475
 GameObject:
@@ -1628,12 +1676,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3718321913373836931, guid: ab1efee3385c58b4083e97c8efb2b02f, type: 3}
       propertyPath: possiblePowerUpTypes.Array.size
-      value: 5
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 3718321913373836931, guid: ab1efee3385c58b4083e97c8efb2b02f, type: 3}
       propertyPath: 'possiblePowerUpTypes.Array.data[4]'
       value: 
-      objectReference: {fileID: 11400000, guid: a3f2ddd4f31b06b4c90ff9d82561ca5b, type: 2}
+      objectReference: {fileID: 11400000, guid: 1ed7fa4f09d62724ba7a9a3233f7acda, type: 2}
     - target: {fileID: 7937261149154524333, guid: ab1efee3385c58b4083e97c8efb2b02f, type: 3}
       propertyPath: m_Name
       value: PowerUP
@@ -2339,6 +2387,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!1 &1171226700
 GameObject:
@@ -2627,6 +2676,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -2927,6 +2977,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -3064,6 +3115,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -3183,7 +3235,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 7fbcad985c7519b4c97ae1ec20cfd14f, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 7fbcad985c7519b4c97ae1ec20cfd14f, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -3437,11 +3489,13 @@ MonoBehaviour:
   pool: {fileID: 943463836}
   prefab: {fileID: 697687384}
   availableTypes:
-  - {fileID: 11400000, guid: eb99627cffd6c5540bdf2c466786e10e, type: 2}
-  - {fileID: 11400000, guid: b6891cc556aea3248bb6da54c2b58c2b, type: 2}
-  - {fileID: 11400000, guid: 4c6e145a63077244abfc81da7d75a199, type: 2}
-  - {fileID: 11400000, guid: 4e6b44e94c7c89b4c8201706e5157808, type: 2}
+  - {fileID: 11400000, guid: ac31698624033294895466c64173c21e, type: 2}
+  - {fileID: 11400000, guid: 541631816a9861e43b0eeff0a37079a5, type: 2}
+  - {fileID: 11400000, guid: ba2df92b7d03b3a43a7f91cde86c2fa7, type: 2}
+  - {fileID: 11400000, guid: 559f3c6dc55d0e14291c3c8e952b19d0, type: 2}
+  - {fileID: 11400000, guid: 1ed7fa4f09d62724ba7a9a3233f7acda, type: 2}
   - {fileID: 11400000, guid: e1e98a8024b481d409ba374cb68fced6, type: 2}
+  - {fileID: 11400000, guid: 94dc72fc9fa2f2c408de753906ec8b48, type: 2}
   - {fileID: 11400000, guid: a3f2ddd4f31b06b4c90ff9d82561ca5b, type: 2}
   initialCount: 0
   minSeparation: 2
@@ -3477,10 +3531,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   powerUpPrefab: {fileID: 697687384}
   availablePowerUpTypes:
-  - {fileID: 11400000, guid: eb99627cffd6c5540bdf2c466786e10e, type: 2}
+  - {fileID: 11400000, guid: ac31698624033294895466c64173c21e, type: 2}
+  - {fileID: 11400000, guid: 541631816a9861e43b0eeff0a37079a5, type: 2}
+  - {fileID: 11400000, guid: ba2df92b7d03b3a43a7f91cde86c2fa7, type: 2}
+  - {fileID: 11400000, guid: 559f3c6dc55d0e14291c3c8e952b19d0, type: 2}
+  - {fileID: 11400000, guid: 1ed7fa4f09d62724ba7a9a3233f7acda, type: 2}
   - {fileID: 11400000, guid: e1e98a8024b481d409ba374cb68fced6, type: 2}
-  - {fileID: 11400000, guid: b6891cc556aea3248bb6da54c2b58c2b, type: 2}
-  - {fileID: 11400000, guid: 4c6e145a63077244abfc81da7d75a199, type: 2}
+  - {fileID: 11400000, guid: 94dc72fc9fa2f2c408de753906ec8b48, type: 2}
   - {fileID: 11400000, guid: a3f2ddd4f31b06b4c90ff9d82561ca5b, type: 2}
   playerTransform: {fileID: 434426796}
   forwardOffset: 5
@@ -3583,6 +3640,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -3735,17 +3793,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Version: 3
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
-  m_LightLayerMask: 1
-  m_RenderingLayers: 1
   m_CustomShadowLayers: 0
-  m_ShadowLayerMask: 1
-  m_ShadowRenderingLayers: 1
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 2
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!108 &1685185163
 Light:
   m_ObjectHideFlags: 0
@@ -3754,14 +3818,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1685185161}
   m_Enabled: 1
-  serializedVersion: 11
+  serializedVersion: 12
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
+  m_CookieSize2D: {x: 10, y: 10}
   m_Shadows:
     m_Type: 2
     m_Resolution: -1
@@ -4181,7 +4245,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 2de9072d517028143809048f388ae2fb, type: 3}
+  m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 2de9072d517028143809048f388ae2fb, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.1
@@ -4588,6 +4652,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -4813,6 +4878,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!1 &2098834625
 GameObject:

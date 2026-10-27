@@ -10,6 +10,8 @@ public class PlayerPowerUpManager : MonoBehaviour
     public GameObject Turret_R;
     public GameObject Drone_L;
     public GameObject Drone_R;
+    public GameObject Drone_3;
+    public GameObject Drone_4;
 
     [Header("Shield Parts")]
     public GameObject Shell_1;
@@ -29,8 +31,17 @@ public class PlayerPowerUpManager : MonoBehaviour
     [Header("Type Object - Power-Up Actual")]
     [SerializeField] private PowerUpType currentPowerUpType;
 
+    [Header("Progresión Ordenada de Armas (Type Object)")]
+    [Tooltip("Orden de mejora de armas: 0=CadenceLvl1, 1=DronesLvl1, 2=DronesLvl2, 3=DronesLvl3, 4=CadenceLvl2")]
+    public PowerUpType[] weaponProgressionOrder;
+
+    [Header("Progresión Ordenada de Escudos (Type Object)")]
+    [Tooltip("Orden de mejora de escudos: 0=Shields (Nivel 1), 1=ShieldLvl2 (Nivel 2)")]
+    public PowerUpType[] shieldProgressionOrder;
+
     private int weaponLevel = 0;
     private int shieldLevel = 0;
+    private float currentFireRateMultiplier = 1f;
     public int WeaponLevel => weaponLevel;
     public int ShieldLevel => shieldLevel;
     private PlayerHealth playerHealth;
@@ -39,15 +50,62 @@ public class PlayerPowerUpManager : MonoBehaviour
     
     public float GetFireRateMultiplier()
     {
-        return currentPowerUpType != null ? currentPowerUpType.fireRateMultiplier : 1f;
+        return currentFireRateMultiplier;
     }
 
     void Start()
     {
         playerHealth = GetComponent<PlayerHealth>();
         if (playerHealth == null) playerHealth = GetComponentInParent<PlayerHealth>();
+        EnsureDroneReferences();
         InitializeShieldComponents();
         ResetAllPowerUps();
+    }
+
+    public void EnsureDroneReferences()
+    {
+        Transform powerUpsRoot = transform.Find("PowerUps");
+        if (Drone_L == null)
+        {
+            if (Turret_L != null) Drone_L = Turret_L;
+            else if (powerUpsRoot != null)
+            {
+                var t = powerUpsRoot.Find("Turret_L");
+                if (t != null) Drone_L = t.gameObject;
+            }
+        }
+        if (Drone_R == null)
+        {
+            if (Turret_R != null) Drone_R = Turret_R;
+            else if (powerUpsRoot != null)
+            {
+                var t = powerUpsRoot.Find("Turret_R");
+                if (t != null) Drone_R = t.gameObject;
+            }
+        }
+        if (Drone_3 == null && powerUpsRoot != null)
+        {
+            var t = powerUpsRoot.Find("Turret_3");
+            if (t != null) Drone_3 = t.gameObject;
+        }
+        if (Drone_4 == null && powerUpsRoot != null)
+        {
+            var t = powerUpsRoot.Find("Turret_4");
+            if (t != null) Drone_4 = t.gameObject;
+        }
+
+        // Asegurar que todos los drones tengan las referencias necesarias para disparar (BulletPool, FirePoint, etc.)
+        BulletShoot mainShoot = GetComponentInChildren<BulletShoot>();
+        GameObject[] allDrones = new GameObject[] { Drone_L, Drone_R, Drone_3, Drone_4 };
+        foreach (var d in allDrones)
+        {
+            if (d == null) continue;
+            var bs = d.GetComponent<BulletShoot>();
+            if (bs != null)
+            {
+                bs.SyncPoolFrom(mainShoot, this);
+            }
+        }
     }
 
     private void InitializeShieldComponents()
@@ -78,14 +136,10 @@ public class PlayerPowerUpManager : MonoBehaviour
         {
             return;
         }
-        bool isWeaponPowerUp = powerUpType.enableSideCannons || powerUpType.enableTurrets || powerUpType.enableOrbitingDrones;
+
+        EnsureDroneReferences();
+
         bool isShieldPowerUp = powerUpType.shieldActive;
-        currentPowerUpType = powerUpType;
-        if (isWeaponPowerUp)
-        {
-            IncreaseWeaponLevel();
-        }
-        
         if (isShieldPowerUp)
         {
             IncreaseShieldLevel(powerUpType);
@@ -105,51 +159,175 @@ public class PlayerPowerUpManager : MonoBehaviour
             }
         }
 
+        bool isWeaponPowerUp = !isShieldPowerUp && powerUpType.healAmount <= 0 && (
+                               powerUpType.weaponUpgradeMode != WeaponUpgradeMode.DefaultLegacy ||
+                               powerUpType.enableSideCannons ||
+                               powerUpType.enableTurrets ||
+                               powerUpType.enableOrbitingDrones ||
+                               powerUpType.fireRateMultiplier > 1f);
+
+        if (isWeaponPowerUp)
+        {
+            // Progresión estricta en orden (sin degradaciones):
+            // 1 = CadenceLvl1, 2 = DronesLvl1 (fijos), 3 = DronesLvl2 (2 orbitando), 4 = DronesLvl3 (4 orbitando), 5 = CadenceLvl2 (4 orbitando + mayor cadencia)
+            IncreaseWeaponLevel(powerUpType);
+        }
     }
 
-    private void IncreaseWeaponLevel()
+    private void IncreaseWeaponLevel(PowerUpType pickedUpType = null)
     {
-        weaponLevel++;
-        weaponLevel = Mathf.Clamp(weaponLevel, 0, 3);
-        if (weaponLevel >= 1)
+        int maxWeaponLevel = (weaponProgressionOrder != null && weaponProgressionOrder.Length > 0) ? weaponProgressionOrder.Length : 5;
+        if (weaponLevel < maxWeaponLevel)
         {
-            EnableCanons();
+            weaponLevel++;
         }
-        
-        if (weaponLevel >= 2)
+
+        PowerUpType stageType = GetWeaponStageType(weaponLevel, pickedUpType);
+        if (stageType != null)
         {
-            EnableTurrets();
+            currentPowerUpType = stageType;
+            if (stageType.fireRateMultiplier > currentFireRateMultiplier)
+            {
+                currentFireRateMultiplier = stageType.fireRateMultiplier;
+            }
         }
-        
-        if (weaponLevel >= 3)
+        else if (pickedUpType != null)
         {
-            EnableDronesOrbit(currentPowerUpType);
+            currentPowerUpType = pickedUpType;
+            if (pickedUpType.fireRateMultiplier > currentFireRateMultiplier)
+            {
+                currentFireRateMultiplier = pickedUpType.fireRateMultiplier;
+            }
+        }
+
+        if (weaponLevel >= 1 && currentFireRateMultiplier <= 1f)
+        {
+            currentFireRateMultiplier = 1.35f;
+        }
+        if (weaponLevel >= 5 && currentFireRateMultiplier < 2.0f)
+        {
+            currentFireRateMultiplier = 2.0f;
+        }
+
+        switch (weaponLevel)
+        {
+            case 1:
+                // Nivel 1: Cadence LVL1 (solo aumenta cadencia, sin drones)
+                DisableAllDrones();
+                break;
+            case 2:
+                // Nivel 2: Drones Lvl1 (2 drones fijos a los costados)
+                DisableAllDrones();
+                EnableDronesFixed();
+                break;
+            case 3:
+                // Nivel 3: Drones Lvl2 (2 drones orbitando)
+                DisableAllDrones();
+                EnableDronesOrbit(2, stageType);
+                break;
+            case 4:
+                // Nivel 4: Drones Lvl3 (4 drones orbitando)
+                DisableAllDrones();
+                EnableDronesOrbit(4, stageType);
+                break;
+            default:
+                // Nivel 5+: Cadence LVL2 (mantiene los 4 drones orbitando y aumenta aún más la cadencia)
+                if (!AreAllFourDronesOrbiting())
+                {
+                    DisableAllDrones();
+                    EnableDronesOrbit(4, stageType);
+                }
+                break;
+        }
+    }
+
+    private bool AreAllFourDronesOrbiting()
+    {
+        GameObject[] fourDrones = new GameObject[] { Drone_L, Drone_R, Drone_3, Drone_4 };
+        foreach (var d in fourDrones)
+        {
+            if (d == null || !d.activeSelf) return false;
+            var orbit = d.GetComponent<DroneOrbit>();
+            if (orbit == null || !orbit.enabled) return false;
+        }
+        return true;
+    }
+
+    public PowerUpType GetWeaponStageType(int level, PowerUpType fallback = null)
+    {
+        int index = level - 1;
+        if (weaponProgressionOrder != null && index >= 0 && index < weaponProgressionOrder.Length && weaponProgressionOrder[index] != null)
+        {
+            return weaponProgressionOrder[index];
+        }
+        return fallback != null ? fallback : currentPowerUpType;
+    }
+
+    public PowerUpType GetNextWeaponPowerUpType()
+    {
+        int maxWeaponLevel = (weaponProgressionOrder != null && weaponProgressionOrder.Length > 0) ? weaponProgressionOrder.Length : 5;
+        int nextLevel = Mathf.Clamp(weaponLevel + 1, 1, maxWeaponLevel);
+        return GetWeaponStageType(nextLevel, null);
+    }
+
+    public PowerUpType GetShieldStageType(int level, PowerUpType fallback = null)
+    {
+        int index = level - 1;
+        if (shieldProgressionOrder != null && index >= 0 && index < shieldProgressionOrder.Length && shieldProgressionOrder[index] != null)
+        {
+            return shieldProgressionOrder[index];
+        }
+        return fallback;
+    }
+
+    public PowerUpType GetNextShieldPowerUpType()
+    {
+        SyncActiveShieldState();
+        int maxShieldLevel = (shieldProgressionOrder != null && shieldProgressionOrder.Length > 0) ? shieldProgressionOrder.Length : 2;
+        int nextLevel = Mathf.Clamp(shieldLevel + 1, 1, maxShieldLevel);
+        return GetShieldStageType(nextLevel, null);
+    }
+
+    private void SyncActiveShieldState()
+    {
+        bool s1Active = shield1Component != null && shield1Component.IsActive;
+        bool s2Active = shield2Component != null && shield2Component.IsActive;
+        if (!s1Active && !s2Active && shieldLevel > 0)
+        {
+            shieldLevel = 0;
         }
     }
 
     private void IncreaseShieldLevel(PowerUpType powerUpType)
     {
-        shieldLevel++;
-        shieldLevel = Mathf.Clamp(shieldLevel, 0, 2);
-        int resistance = GetShieldResistance(shieldLevel, powerUpType);
+        SyncActiveShieldState();
+        // Progresión estricta en orden de escudo (Nivel 1 -> Nivel 2, sin degradaciones)
+        if (shieldLevel < 2)
+        {
+            shieldLevel++;
+        }
+        shieldLevel = Mathf.Clamp(shieldLevel, 1, 2);
+
+        PowerUpType stageShield = GetShieldStageType(shieldLevel, powerUpType);
+        int resistance = GetShieldResistance(shieldLevel, stageShield);
         ApplyShield(shieldLevel, resistance);
     }
 
     private int GetShieldResistance(int level, PowerUpType powerUpType)
     {
+        if (level == 2)
+        {
+            if (powerUpType != null && powerUpType.shieldLevel == 2 && powerUpType.shieldResistance > 0)
+            {
+                return powerUpType.shieldResistance;
+            }
+            return 200;
+        }
         if (powerUpType != null && powerUpType.shieldResistance > 0)
         {
             return powerUpType.shieldResistance;
         }
-        switch (level)
-        {
-            case 1:
-                return 100;
-            case 2:
-                return 200;
-            default:
-                return 100;
-        }
+        return 100;
     }
 
     [System.Obsolete("Usa ApplyPowerUpType(PowerUpType) en su lugar para usar el patrón Type Object")]
@@ -171,88 +349,100 @@ public class PlayerPowerUpManager : MonoBehaviour
 
     private void EnableDronesFixed()
     {
+        EnsureDroneReferences();
+
         if (Drone_L) 
         {
-            Drone_L.SetActive(true);
             DroneOrbit orbitL = Drone_L.GetComponent<DroneOrbit>();
             if (orbitL != null) orbitL.enabled = false;
-            if (Drone_L.transform.parent != transform)
-            {
-                Drone_L.transform.SetParent(transform);
-            }
-            Drone_L.transform.localPosition = new Vector3(-1f, 0f, 0f);
+            Drone_L.transform.SetParent(transform);
+            Drone_L.transform.localPosition = new Vector3(-2.2f, 0f, 0f);
+            Drone_L.transform.localRotation = Quaternion.identity;
+            Drone_L.SetActive(true);
         }
         
         if (Drone_R) 
         {
-            Drone_R.SetActive(true);
             DroneOrbit orbitR = Drone_R.GetComponent<DroneOrbit>();
             if (orbitR != null) orbitR.enabled = false;
-            if (Drone_R.transform.parent != transform)
-            {
-                Drone_R.transform.SetParent(transform);
-            }
-            Drone_R.transform.localPosition = new Vector3(1f, 0f, 0f);
+            Drone_R.transform.SetParent(transform);
+            Drone_R.transform.localPosition = new Vector3(2.2f, 0f, 0f);
+            Drone_R.transform.localRotation = Quaternion.identity;
+            Drone_R.SetActive(true);
+        }
+
+        if (Drone_3) Drone_3.SetActive(false);
+        if (Drone_4) Drone_4.SetActive(false);
+    }
+
+    private void EnableDronesOrbit(int count, PowerUpType powerUpType = null)
+    {
+        EnsureDroneReferences();
+
+        float radius = powerUpType != null && powerUpType.orbitRadius > 0 ? powerUpType.orbitRadius : defaultOrbitRadius;
+        float speed = powerUpType != null && powerUpType.orbitSpeed > 0 ? powerUpType.orbitSpeed : defaultOrbitSpeed;
+        float baseAngle = Random.Range(0f, 360f);
+
+        GameObject[] dronesToSetup;
+        float[] angleOffsets;
+
+        if (count == 4)
+        {
+            dronesToSetup = new GameObject[] { Drone_L, Drone_R, Drone_3, Drone_4 };
+            angleOffsets = new float[] { 0f, 90f, 180f, 270f };
+        }
+        else
+        {
+            dronesToSetup = new GameObject[] { Drone_L, Drone_R };
+            angleOffsets = new float[] { 0f, 180f };
+            if (Drone_3) Drone_3.SetActive(false);
+            if (Drone_4) Drone_4.SetActive(false);
+        }
+
+        for (int i = 0; i < dronesToSetup.Length; i++)
+        {
+            GameObject droneObj = dronesToSetup[i];
+            if (droneObj == null) continue;
+
+            droneObj.SetActive(true);
+            droneObj.transform.SetParent(null);
+
+            DroneOrbit orbit = droneObj.GetComponent<DroneOrbit>();
+            if (orbit == null) orbit = droneObj.AddComponent<DroneOrbit>();
+
+            float currentAngle = (baseAngle + angleOffsets[i]) % 360f;
+            orbit.target = transform;
+            orbit.radius = Mathf.Abs(radius);
+            orbit.speed = speed;
+            orbit.useRandomStart = false;
+            orbit.angle = currentAngle;
+            orbit.faceOutward = true;
+
+            float rad = currentAngle * Mathf.Deg2Rad;
+            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * radius;
+            droneObj.transform.position = transform.position + offset;
+            droneObj.transform.forward = (droneObj.transform.position - transform.position).normalized;
+
+            orbit.enabled = true;
         }
     }
 
-    private void EnableDronesOrbit(PowerUpType powerUpType = null)
+    private void DisableAllDrones()
     {
-        if (!Drone_L || !Drone_R) return;
-        float radius = powerUpType != null ? powerUpType.orbitRadius : defaultOrbitRadius;
-        float speed = powerUpType != null ? powerUpType.orbitSpeed : defaultOrbitSpeed;
-        Drone_L.SetActive(true);
-        Drone_R.SetActive(true);
-        Drone_L.transform.SetParent(null);
-        Drone_R.transform.SetParent(null);
-        float baseAngle = Random.Range(0f, 360f);
-        float leftAngle = baseAngle + 180f;
-        float rightAngle = baseAngle;
-        if (Drone_L)
+        EnsureDroneReferences();
+        Transform powerUpsRoot = transform.Find("PowerUps");
+        GameObject[] allDrones = new GameObject[] { Drone_L, Drone_R, Drone_3, Drone_4, Turret_L, Turret_R };
+        foreach (var d in allDrones)
         {
-            DroneOrbit orbit = Drone_L.GetComponent<DroneOrbit>();
-            if (orbit == null) orbit = Drone_L.AddComponent<DroneOrbit>();
-            
-            orbit.target = transform;
-            orbit.radius = Mathf.Abs(radius);
-            orbit.speed = speed;
-            orbit.useRandomStart = false;
-            orbit.angle = leftAngle;
-            orbit.faceOutward = true;
-            
-            float rad = leftAngle * Mathf.Deg2Rad;
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * radius;
-            Drone_L.transform.position = transform.position + offset;
-            
-            if (orbit.faceOutward)
+            if (d == null) continue;
+            var orbit = d.GetComponent<DroneOrbit>();
+            if (orbit != null) orbit.enabled = false;
+            if (powerUpsRoot != null && d.transform.parent != powerUpsRoot)
             {
-                Drone_L.transform.forward = (Drone_L.transform.position - transform.position).normalized;
+                d.transform.SetParent(powerUpsRoot);
+                d.transform.localPosition = Vector3.zero;
             }
-            
-            orbit.enabled = true;
-        }
-        if (Drone_R)
-        {
-            DroneOrbit orbit = Drone_R.GetComponent<DroneOrbit>();
-            if (orbit == null) orbit = Drone_R.AddComponent<DroneOrbit>();
-            
-            orbit.target = transform;
-            orbit.radius = Mathf.Abs(radius);
-            orbit.speed = speed;
-            orbit.useRandomStart = false;
-            orbit.angle = rightAngle;
-            orbit.faceOutward = true;
-            
-            float rad = rightAngle * Mathf.Deg2Rad;
-            Vector3 offset = new Vector3(Mathf.Cos(rad), 0f, Mathf.Sin(rad)) * radius;
-            Drone_R.transform.position = transform.position + offset;
-            
-            if (orbit.faceOutward)
-            {
-                Drone_R.transform.forward = (Drone_R.transform.position - transform.position).normalized;
-            }
-            
-            orbit.enabled = true;
+            d.SetActive(false);
         }
     }
 
@@ -260,24 +450,7 @@ public class PlayerPowerUpManager : MonoBehaviour
     {
         if (Canon_L) Canon_L.SetActive(false);
         if (Canon_R) Canon_R.SetActive(false);
-        if (Turret_L) Turret_L.SetActive(false);
-        if (Turret_R) Turret_R.SetActive(false);
-        if (Drone_L) 
-        {
-            Drone_L.SetActive(false);
-            if (Drone_L.transform.parent == transform)
-            {
-                Drone_L.transform.SetParent(null);
-            }
-        }
-        if (Drone_R) 
-        {
-            Drone_R.SetActive(false);
-            if (Drone_R.transform.parent == transform)
-            {
-                Drone_R.transform.SetParent(null);
-            }
-        }
+        DisableAllDrones();
     }
 
     private void DisableShield()
@@ -297,12 +470,12 @@ public class PlayerPowerUpManager : MonoBehaviour
 
     public void OnShieldDeactivated()
     {
-        shieldLevel = Mathf.Max(0, shieldLevel - 1);
+        SyncActiveShieldState();
     }
 
     public void OnShieldBroken()
     {
-        shieldLevel = Mathf.Max(0, shieldLevel - 1);
+        shieldLevel = 0;
     }
 
     private void ResetAllPowerUps()
@@ -312,6 +485,7 @@ public class PlayerPowerUpManager : MonoBehaviour
         currentPowerUpType = null;
         weaponLevel = 0;
         shieldLevel = 0;
+        currentFireRateMultiplier = 1f;
     }
 
     private void ApplyShield(int shieldLevel, int resistance)

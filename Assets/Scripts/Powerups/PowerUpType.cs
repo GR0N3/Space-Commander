@@ -1,5 +1,15 @@
 using UnityEngine;
 
+public enum WeaponUpgradeMode
+{
+    DefaultLegacy = 0,
+    FireRateOnly = 1,      // Cadencia LVL1
+    DronesFixedSides = 2,  // Drones Lvl1 (2 drones a los costados)
+    DronesOrbiting2 = 3,   // Drones Lvl2 (2 drones orbitando)
+    DronesOrbiting4 = 4,   // Drones Lvl3 (4 drones orbitando)
+    FireRateLvl2 = 5       // Cadencia LVL2 (se activa después de Drones Lvl3, mantiene los 4 drones y sube más la cadencia)
+}
+
 [CreateAssetMenu(fileName = "NewPowerUpType", menuName = "Type Object/PowerUpType", order = 1)]
 public class PowerUpType : ScriptableObject
 {
@@ -11,9 +21,13 @@ public class PowerUpType : ScriptableObject
     [TextArea(2, 4)]
     public string description = "";
 
+    [Header("Modo de Mejora de Armas")]
+    [Tooltip("Define el modo específico de mejora de armas")]
+    public WeaponUpgradeMode weaponUpgradeMode = WeaponUpgradeMode.DefaultLegacy;
+
     [Header("Armas - Cañones Extra")]
     [Tooltip("Número de cañones adicionales que se activan (0 = ninguno, 1 = cañones laterales, 2 = torretas, 3 = drones orbitantes)")]
-    [Range(0, 3)]
+    [Range(0, 4)]
     public int extraCannons = 0;
     
     [Tooltip("Si está activo, habilita los cañones laterales (Canon_L y Canon_R)")]
@@ -54,6 +68,9 @@ public class PowerUpType : ScriptableObject
     public int healAmount = 0;
 
     [Header("Efectos Visuales/Sonido (Opcional)")]
+    [Tooltip("Material para el objeto del Power-Up (ej. Shader de escudo, verde para vida, etc.)")]
+    public Material powerUpMaterial;
+
     [Tooltip("Sprite o icono del power-up (para UI)")]
     public Sprite icon;
     
@@ -92,4 +109,3 @@ public class PowerUpType : ScriptableObject
         healAmount = Mathf.Max(0, healAmount);
     }
 }
-

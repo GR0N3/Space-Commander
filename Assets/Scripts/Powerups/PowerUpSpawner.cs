@@ -67,8 +67,8 @@ public class PowerUpSpawner : MonoBehaviour
             return;
         }
 
-        PowerUpType randomType = availablePowerUpTypes[Random.Range(0, availablePowerUpTypes.Length)];
-        SpawnPowerUp(randomType);
+        PowerUpType selectedType = PowerUp.SelectAppropriatePowerUpType(availablePowerUpTypes);
+        SpawnPowerUp(selectedType);
     }
 
     public GameObject SpawnPowerUp(PowerUpType powerUpType)
@@ -111,7 +111,7 @@ public class PowerUpSpawner : MonoBehaviour
             p = go.AddComponent<PowerUp>();
         }
 
-        p.powerUpType = powerUpType;
+        p.SetPowerUpType(powerUpType);
 
         return go;
     }
