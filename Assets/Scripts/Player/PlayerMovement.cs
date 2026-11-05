@@ -14,6 +14,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool clampToArea = true;
     [SerializeField] private float playerPadding = 0.5f;
 
+    public float MoveSpeed { get => moveSpeed; set => moveSpeed = value; }
+    public float PlayerPadding { get => playerPadding; set => playerPadding = value; }
+    public SpawnArea ClampArea { get => clampArea; set => clampArea = value; }
+    public bool ClampToArea { get => clampToArea; set => clampToArea = value; }
+
     private void Start()
     {
         mainCamera = Camera.main;
@@ -27,9 +32,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void HandleMovement()
     {
-        float verticalInput = Input.GetAxis("Vertical");
+        Move(Input.GetAxis("Vertical"), Time.deltaTime);
+    }
+
+    public void Move(float verticalInput, float deltaTime)
+    {
         Vector3 moveDirection = transform.forward * verticalInput;
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        transform.position += moveDirection * moveSpeed * deltaTime;
         if (clampToArea && clampArea != null)
         {
             Vector3 pos = transform.position;

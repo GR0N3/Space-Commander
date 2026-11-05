@@ -139,6 +139,15 @@ public class PowerUp : MonoBehaviour
         }
     }
 
+    public void SimulateCollect(GameObject player)
+    {
+        if (player != null && player.CompareTag("Player"))
+        {
+            ApplyToPlayer(player);
+            gameObject.SetActive(false);
+        }
+    }
+
     private void ApplyToPlayer(GameObject player)
     {
         if (powerUpType == null)

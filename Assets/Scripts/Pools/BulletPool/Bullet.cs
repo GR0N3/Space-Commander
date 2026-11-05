@@ -48,8 +48,12 @@ public class Bullet : MonoBehaviour
         if (lifetimeCoroutine != null)
         {
             StopCoroutine(lifetimeCoroutine);
+            lifetimeCoroutine = null;
         }
-        lifetimeCoroutine = StartCoroutine(LifetimeCoroutine());
+        if (Application.isPlaying && gameObject.activeInHierarchy)
+        {
+            lifetimeCoroutine = StartCoroutine(LifetimeCoroutine());
+        }
     }
 
     /// <summary>
@@ -95,8 +99,12 @@ public class Bullet : MonoBehaviour
         if (lifetimeCoroutine != null)
         {
             StopCoroutine(lifetimeCoroutine);
+            lifetimeCoroutine = null;
         }
-        lifetimeCoroutine = StartCoroutine(LifetimeCoroutine());
+        if (Application.isPlaying && gameObject.activeInHierarchy)
+        {
+            lifetimeCoroutine = StartCoroutine(LifetimeCoroutine());
+        }
     }
 
     private void OnDisable()
@@ -207,6 +215,11 @@ public class Bullet : MonoBehaviour
         if (bulletData == null) return;
         if (!IsValidTarget(other)) return;
         ApplyDamageTo(other);
+    }
+
+    public void SimulateHit(Collider other)
+    {
+        OnTriggerEnter(other);
     }
 
     private void OnCollisionEnter(Collision collision)

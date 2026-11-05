@@ -19,6 +19,11 @@ public class PlayerHealth : MonoBehaviour
 
     void Awake()
     {
+        InitializeHealth();
+    }
+
+    public void InitializeHealth()
+    {
         entityLife = GetComponent<EntityLife>();
         if (entityLife == null)
         {
@@ -28,6 +33,7 @@ public class PlayerHealth : MonoBehaviour
         if (playerLifeType != null)
         {
             entityLife.lifeType = playerLifeType;
+            entityLife.InitializeFromLifeType();
         }
         if (renderers == null || renderers.Length == 0)
         {
@@ -61,7 +67,7 @@ public class PlayerHealth : MonoBehaviour
 
     void OnHealthChanged(HealthChangedData data)
     {
-        if (!blinkOnDamage) { prevHealth = data.currentHealth; return; }
+        if (!blinkOnDamage || !Application.isPlaying) { prevHealth = data.currentHealth; return; }
         if (data.currentHealth < prevHealth)
         {
             StopAllCoroutines();

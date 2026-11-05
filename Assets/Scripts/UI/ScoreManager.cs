@@ -21,9 +21,16 @@ public class ScoreManager : MonoBehaviour, IScoreService
         {
             if (instance == null)
             {
-                var go = new GameObject("ScoreManager");
-                instance = go.AddComponent<ScoreManager>();
-                DontDestroyOnLoad(go);
+                instance = Object.FindFirstObjectByType<ScoreManager>();
+                if (instance == null)
+                {
+                    var go = new GameObject("ScoreManager");
+                    instance = go.AddComponent<ScoreManager>();
+                    if (Application.isPlaying)
+                    {
+                        DontDestroyOnLoad(go);
+                    }
+                }
             }
             return instance;
         }
@@ -36,11 +43,21 @@ public class ScoreManager : MonoBehaviour, IScoreService
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Application.isPlaying)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
         }
         else if (instance != this)
         {
-            Destroy(gameObject);
+            if (Application.isPlaying)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                DestroyImmediate(gameObject);
+            }
             return;
         }
     }

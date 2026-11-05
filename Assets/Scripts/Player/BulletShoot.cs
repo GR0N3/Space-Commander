@@ -22,6 +22,13 @@ public class BulletShoot : MonoBehaviour, IWeapon
 
     private float fireCooldown = 0f;
 
+    public float BaseFireRate { get => baseFireRate; set => baseFireRate = value; }
+    public float FireCooldown => fireCooldown;
+    public BulletData BulletData { get => bulletData; set => bulletData = value; }
+    public ObjectPool ObjectPool { get => objectPool; set => objectPool = value; }
+    public BulletPool BulletPool { get => bulletPool; set => bulletPool = value; }
+    public Transform FirePoint { get => firePoint; set => firePoint = value; }
+
     void Start()
     {
         EnsureReferences();
@@ -92,7 +99,12 @@ public class BulletShoot : MonoBehaviour, IWeapon
 
     void Update()
     {
-        fireCooldown -= Time.deltaTime;
+        SimulateUpdate(Input.GetKey(KeyCode.Mouse0), Time.deltaTime);
+    }
+
+    public bool SimulateUpdate(bool isFireButtonHeld, float deltaTime)
+    {
+        fireCooldown -= deltaTime;
 
         float fireRateMultiplier = 1f;
         if (powerUpManager != null)
@@ -102,11 +114,13 @@ public class BulletShoot : MonoBehaviour, IWeapon
 
         float effectiveFireRate = baseFireRate / fireRateMultiplier;
 
-        if (Input.GetKey(KeyCode.Mouse0) && fireCooldown <= 0f)
+        if (isFireButtonHeld && fireCooldown <= 0f)
         {
             Shoot();
             fireCooldown = effectiveFireRate;
+            return true;
         }
+        return false;
     }
 
     void OnEnable()

@@ -32,6 +32,11 @@ public class EntityLife : MonoBehaviour
 
     void Awake()
     {
+        InitializeFromLifeType();
+    }
+
+    public void InitializeFromLifeType()
+    {
         if (lifeType != null)
         {
             currentHealth = lifeType.maxHealth;
@@ -56,7 +61,10 @@ public class EntityLife : MonoBehaviour
 
     void Start()
     {
-        gameObject.SendMessage("OnHealthChanged", new HealthChangedData(currentHealth, MaxHealth), SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnHealthChanged", new HealthChangedData(currentHealth, MaxHealth), SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     public void TakeDamage(int amount)
@@ -104,7 +112,10 @@ public class EntityLife : MonoBehaviour
     {
         currentHealth -= amount;
         currentHealth = Mathf.Max(0, currentHealth);
-        gameObject.SendMessage("OnHealthChanged", new HealthChangedData(currentHealth, MaxHealth), SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnHealthChanged", new HealthChangedData(currentHealth, MaxHealth), SendMessageOptions.DontRequireReceiver);
+        }
         if (currentHealth <= 0)
         {
             Die();
@@ -116,7 +127,10 @@ public class EntityLife : MonoBehaviour
         if (amount <= 0) return;
         currentHealth += amount;
         currentHealth = Mathf.Min(MaxHealth, currentHealth);
-        gameObject.SendMessage("OnHealthChanged", new HealthChangedData(currentHealth, MaxHealth), SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnHealthChanged", new HealthChangedData(currentHealth, MaxHealth), SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     public void ActivateShield(int resistance = 0)
@@ -145,7 +159,10 @@ public class EntityLife : MonoBehaviour
             StopCoroutine(shieldCoroutine);
             shieldCoroutine = null;
         }
-        gameObject.SendMessage("OnShieldActivated", SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnShieldActivated", SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     public void DeactivateShield()
@@ -158,13 +175,19 @@ public class EntityLife : MonoBehaviour
             StopCoroutine(shieldCoroutine);
             shieldCoroutine = null;
         }
-        gameObject.SendMessage("OnShieldDeactivated", SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnShieldDeactivated", SendMessageOptions.DontRequireReceiver);
+        }
     }
 
 
     private void HandleShieldBrokenInternal()
     {
-        gameObject.SendMessage("OnShieldBroken", SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnShieldBroken", SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     private void Die()
@@ -177,7 +200,14 @@ public class EntityLife : MonoBehaviour
             }
             else
             {
-                Destroy(gameObject);
+                if (Application.isPlaying)
+                {
+                    Destroy(gameObject);
+                }
+                else
+                {
+                    gameObject.SetActive(false);
+                }
             }
             return;
         }
@@ -189,7 +219,10 @@ public class EntityLife : MonoBehaviour
         {
             LifeFacade.HandleEntityDeath(lifeType, transform.position, gameObject);
         }
-        gameObject.SendMessage("OnEntityDeath", SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnEntityDeath", SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     void OnDestroy()
@@ -212,4 +245,3 @@ public struct HealthChangedData
         maxHealth = max;
     }
 }
-

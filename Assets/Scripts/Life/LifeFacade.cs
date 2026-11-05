@@ -50,7 +50,14 @@ public class LifeFacade : MonoBehaviour
         }
         else if (instance != this)
         {
-            Destroy(gameObject);
+            if (Application.isPlaying)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                DestroyImmediate(gameObject);
+            }
             return;
         }
         if (audioSource == null)
@@ -99,7 +106,10 @@ public class LifeFacade : MonoBehaviour
                         AudioListener.pause = true;
                     }
                     if (gameOverUI != null) gameOverUI.SetActive(true);
-                    StartCoroutine(WaitAnyKeyThenMenu());
+                    if (Application.isPlaying)
+                    {
+                        StartCoroutine(WaitAnyKeyThenMenu());
+                    }
                 }
             }
             else
@@ -111,7 +121,14 @@ public class LifeFacade : MonoBehaviour
                     var flow = Object.FindFirstObjectByType<GameFlowFacade>();
                     if (flow != null) flow.EndLevel();
                 }
-                Destroy(entityGameObject);
+                if (Application.isPlaying)
+                {
+                    Destroy(entityGameObject);
+                }
+                else
+                {
+                    entityGameObject.SetActive(false);
+                }
             }
         }
     }
@@ -130,7 +147,14 @@ public class LifeFacade : MonoBehaviour
             sourceToUse.spatialBlend = 1f;
             sourceToUse.maxDistance = 50f;
             sourceToUse.PlayOneShot(lifeType.deathSound, vol);
-            Destroy(tempAudio, lifeType.deathSound.length + 0.1f);
+            if (Application.isPlaying)
+            {
+                Destroy(tempAudio, lifeType.deathSound.length + 0.1f);
+            }
+            else
+            {
+                DestroyImmediate(tempAudio);
+            }
         }
         else if (sourceToUse != null)
         {
@@ -182,7 +206,14 @@ public class LifeFacade : MonoBehaviour
             GameObject tempFacade = new GameObject("TempLifeFacade");
             LifeFacade temp = tempFacade.AddComponent<LifeFacade>();
             temp.HandleDeath(lifeType, position, entityGameObject);
-            Destroy(tempFacade, 1f);
+            if (Application.isPlaying)
+            {
+                Destroy(tempFacade, 1f);
+            }
+            else
+            {
+                DestroyImmediate(tempFacade);
+            }
         }
     }
 

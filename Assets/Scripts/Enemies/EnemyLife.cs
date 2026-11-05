@@ -11,6 +11,11 @@ public class EnemyLife : MonoBehaviour
 
     void Awake()
     {
+        InitializeEnemyLife();
+    }
+
+    public void InitializeEnemyLife()
+    {
         entityLife = GetComponent<EntityLife>();
         if (entityLife == null)
         {
@@ -19,8 +24,10 @@ public class EnemyLife : MonoBehaviour
         if (enemyLifeType != null)
         {
             entityLife.lifeType = enemyLifeType;
+            entityLife.InitializeFromLifeType();
         }
     }
+
     public void TakeDamage(int amount)
     {
         if (entityLife != null)
@@ -31,4 +38,3 @@ public class EnemyLife : MonoBehaviour
     public int CurrentHealth => entityLife != null ? entityLife.CurrentHealth : 0;
     public int MaxHealth => entityLife != null ? entityLife.MaxHealth : 100;
 }
-

@@ -40,7 +40,10 @@ public class ShieldComponent : MonoBehaviour
             shieldVisual.SetActive(true);
         }
 
-        gameObject.SendMessage("OnShieldActivated", new ShieldResistanceData(currentResistance, maxResistance), SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnShieldActivated", new ShieldResistanceData(currentResistance, maxResistance), SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     public void TakeShieldDamage(int damage)
@@ -49,11 +52,17 @@ public class ShieldComponent : MonoBehaviour
 
         currentResistance -= damage;
         currentResistance = Mathf.Max(0, currentResistance);
-        gameObject.SendMessage("OnShieldDamaged", new ShieldResistanceData(currentResistance, maxResistance), SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnShieldDamaged", new ShieldResistanceData(currentResistance, maxResistance), SendMessageOptions.DontRequireReceiver);
+        }
         if (currentResistance <= 0)
         {
             DeactivateShield();
-            SendMessageUpwards("OnShieldBroken", SendMessageOptions.DontRequireReceiver);
+            if (Application.isPlaying)
+            {
+                SendMessageUpwards("OnShieldBroken", SendMessageOptions.DontRequireReceiver);
+            }
         }
     }
 
@@ -66,7 +75,10 @@ public class ShieldComponent : MonoBehaviour
             shieldVisual.SetActive(false);
         }
 
-        gameObject.SendMessage("OnShieldDeactivated", SendMessageOptions.DontRequireReceiver);
+        if (Application.isPlaying)
+        {
+            gameObject.SendMessage("OnShieldDeactivated", SendMessageOptions.DontRequireReceiver);
+        }
     }
 
     public void RestoreShield()

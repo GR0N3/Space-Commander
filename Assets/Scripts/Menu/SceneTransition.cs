@@ -8,6 +8,15 @@ public class SceneTransition : MonoBehaviour
     private static SceneTransition instance;
     private CanvasGroup overlay;
 
+    public static int LastLoadedSceneIndex { get; private set; } = -1;
+    public static string LastLoadedSceneName { get; private set; } = string.Empty;
+
+    public static void ResetLastLoadedSceneTracking()
+    {
+        LastLoadedSceneIndex = -1;
+        LastLoadedSceneName = string.Empty;
+    }
+
     public static SceneTransition Instance
     {
         get
@@ -16,7 +25,10 @@ public class SceneTransition : MonoBehaviour
             {
                 var go = new GameObject("SceneTransition");
                 instance = go.AddComponent<SceneTransition>();
-                DontDestroyOnLoad(go);
+                if (Application.isPlaying)
+                {
+                    DontDestroyOnLoad(go);
+                }
                 instance.EnsureOverlay();
             }
             return instance;
@@ -53,12 +65,20 @@ public class SceneTransition : MonoBehaviour
 
     public static void LoadScene(string sceneName, float duration = 0.5f)
     {
-        Instance.StartCoroutine(Instance.FadeAndLoad(() => SceneManager.LoadScene(sceneName), duration));
+        LastLoadedSceneName = sceneName;
+        if (Application.isPlaying)
+        {
+            Instance.StartCoroutine(Instance.FadeAndLoad(() => SceneManager.LoadScene(sceneName), duration));
+        }
     }
 
     public static void LoadScene(int sceneIndex, float duration = 0.5f)
     {
-        Instance.StartCoroutine(Instance.FadeAndLoad(() => SceneManager.LoadScene(sceneIndex), duration));
+        LastLoadedSceneIndex = sceneIndex;
+        if (Application.isPlaying)
+        {
+            Instance.StartCoroutine(Instance.FadeAndLoad(() => SceneManager.LoadScene(sceneIndex), duration));
+        }
     }
 
     public static void FadeInFromBlack(float duration = 0.5f)

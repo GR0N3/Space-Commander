@@ -7,6 +7,10 @@ public class ObjectPool : MonoBehaviour
     [SerializeField] private int poolSize = 20;
     private List<GameObject> pool = new List<GameObject>();
 
+    public GameObject ObjPrefab { get => objPrefab; set => objPrefab = value; }
+    public int PoolSize { get => poolSize; set => poolSize = value; }
+    public IReadOnlyList<GameObject> Pool => pool;
+
     void Awake()
     {
         for (int i = 0; i < poolSize; i++)

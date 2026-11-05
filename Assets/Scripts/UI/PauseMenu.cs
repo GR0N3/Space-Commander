@@ -11,6 +11,9 @@ public class PauseMenu : MonoBehaviour
     private bool isPaused;
     private float prevTimeScale = 1f;
 
+    public bool IsPaused => isPaused;
+    public GameObject Panel { get => panel; set => panel = value; }
+
     void Awake()
     {
         if (panel != null) panel.SetActive(false);
@@ -24,6 +27,19 @@ public class PauseMenu : MonoBehaviour
             else if (Input.anyKeyDown) Resume();
         }
         else if (Input.GetKeyDown(toggleKey))
+        {
+            TogglePause();
+        }
+    }
+
+    public void SimulateKeyPress(KeyCode key)
+    {
+        if (isPaused)
+        {
+            if (key == KeyCode.Escape) QuitToMenu();
+            else if (key != KeyCode.None) Resume();
+        }
+        else if (key == toggleKey)
         {
             TogglePause();
         }
